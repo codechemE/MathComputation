@@ -22,14 +22,15 @@ try:
 
     total = 0
 
-    for values in returnDict.values():
-        total += int(values)
+    for nums in returnDict.values():
+        total += int(nums)
 
+    max_index = np.argmax(values)
     print(f'The average UTS value of all samples is {total / len(returnDict)}')
-
+    print(f'The maximum of the UTS_value is {values[max_index]} it corresponds to a Sample Id of {keys[max_index]}')
 
 except FileNotFoundError:
-    print(f'The file cannot be found, please check the exact name of your file')
+    print(f'The file cannot be found, please check the exact name of your file.')
 
 finally:
     print(f'Program was successful.')
