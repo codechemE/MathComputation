@@ -30,7 +30,7 @@ def RowScale(A, k, scale):
     A = np.copy(A).astype('float64')
 
     for j in range(n):
-        B[k][j] *= scale
+        A[k][j] *= scale
     return A
 
 
