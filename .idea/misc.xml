@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11 (MathComputation)" project-jdk-type="Python SDK" />
+  <component name="Black">
+    <option name="sdkUUID" value="e7d8e708-c358-4589-8e82-0f82f81fa43e" />
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="C:\Users\jefim\anaconda3" project-jdk-type="Python SDK" />
 </project>
