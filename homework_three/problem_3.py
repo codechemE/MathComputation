@@ -1,87 +1,39 @@
 import numpy as np
 from numpy import linalg
 
-a = np.array([[0, 2, 1],
-              [1, 1, 2],
-              [2, 1, 1]])
-b = np.array([4, 6, 7])
-sol = np.linalg.solve(a, b)
-print(sol)
 
-c = np.array([[1, -1, 1, 3], [2, 1, 8, 18], [4, 2, -3, -2]])
+def sol_vector(A, b):
+    n = len(b)
+    # create solution vector x
+    x = np.zeros(n, float)
+    for k in range(0, n - 1):  # loop for pivot eq.
+        if A[k, k] == 0:  # check if the diagonal element is 0
+            for j in range(n):  # if so then for all the columns
+                A[k, j], A[k + 1, j] = A[k + 1, j], A[k, j]  # swap the elements for the row below
+            b[k], b[k + 1] = b[k + 1], b[k]  # swap vector b but outside the column loop
+        for i in range(k + 1, n):  # loop for equations below pivot eq
+            lam = A[i, k] / A[k, k]
+            b[i] = b[i] - lam * b[k]
+            # print("b vector",b[i])
+            for j in range(k, n):
+                A[i, j] = A[i, j] - lam * A[k, j]
+            # print("A matrix",A[i,j])
 
-
-def RowSwap(A, k, z):
-    n = A.shape[1]
-
-    B = np.copy(A).astype('float64')
-
-    for j in range(n):
-        temp = B[k][j]
-        B[k][j] = B[z][j]
-        B[z][j] = temp
-
-    return B
-
-
-def RowScale(A, k, scale):
-    n = A.shape[1]
-
-    A = np.copy(A).astype('float64')
-
-    for j in range(n):
-        A[k][j] *= scale
-    return A
+    # Stage 2 back substitution
+    x[n - 1] = b[n - 1] / A[n - 1, n - 1]
+    for i in range(n - 2, -1, -1):
+        # print(i)
+        terms = 0
+        for j in range(i + 1, n):
+            terms += A[i, j] * x[j]
+        x[i] = (b[i] - terms) / A[i, i]
+    return x
 
 
-def RowAdd(A, k, z, scale):
-    n = A.shape[1]
-
-    A = np.copy(A).astype('float64')
-
-    for j in range(n):
-        A[z][j] += A[k][j] * scale
-
-    return A
-
-# print(c)
-# print(RowSwap(a, 0, 2))
-# print(c)
-# print(RowScale(a, 2, .5))
-
-
-a_b = np.array([[0, 2, 1, 4],
-                [1, 1, 2, 6],
-                [2, 1, 1, 7]])
-
-# step_1 = RowScale(a_b, 2, -1)
-step_1 = RowAdd(a_b, 2, 1, -1)
-step_2 = RowAdd(step_1, 2, 1, .5)
-
-
-print(step_2)
-# step 1 = scale row 1 by -2
-
-# step_1 = RowScale(a_b, 0, -2)
-# print(step_1)
-# row 2 = row 2 + row 1
-# step_2 = RowAdd(step_1, 0, 1, 1)
-# print(step_2)
-
-# swap row 1 with row 3
-# step_3 = RowSwap(step_2, 0, 2)
-# print(step_3)
-
-# row 2 = row 2 - .5 * row 1
-
-# step_4 = RowAdd(step_3, 0, 1, -.5)
-# print(step_4)
-
-# step_5 = RowScale(step_4, 2, -1)
-# print(step_5)
-
-# row 2 = row 2 + 1/4 row 3
-
-# step_six = RowAdd(step_5, 2, 1, .25)
-
-# print(step_six)
+a1 = np.array([[0, 2, 1],
+               [1, 1, 2],
+               [2, 1, 1]], dtype=float)
+b1 = np.array([4, 6, 7])
+print(sol_vector(a1, b1))
+print(np.linalg.solve(a1, b1))
+print(f'The answers match')

@@ -4,21 +4,21 @@ import time
 
 
 def fit_curve_fit_cpu():
-    start = time.perf_counter()
+    start = time.time()
     x = np.array([1, 1.5, 2, 2.5], dtype=float)
     y = np.array([55, 22, 13, 10])
     sols = np.polyfit(x, y, 2)
-    end = time.perf_counter()
+    end = time.time()
     print(f"Without GPU: {end- start}")
 
 
-@jit(target_backend='cuda', nopython=True)
+@jit(target_backend='cuda')
 def fit_curve_gpu():
-    start = time.perf_counter()
+    start = time.time()
     x = np.array([1, 1.5, 2, 2.5])
     y = np.array([55, 22, 13, 10])
     sols = np.polyfit(x, y, 2)
-    end = time.perf_counter()
+    end = time.time()
     print(f"With GPU: {end - start}")
 
 
