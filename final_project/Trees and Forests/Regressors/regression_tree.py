@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Node:
     def __init__(self, feature=None, threshold=None, left=None, right=None, *, value=None):
         self.feature = feature
@@ -11,17 +12,20 @@ class Node:
     def is_leaf_node(self):
         return self.value is not None
 
+
 class DecisionTree:
-    def __init__(self, min_samples_split=2, max_depth=100, n_features=None):
+    def __init__(self, min_samples_split=2, max_depth=10, n_features=None):
         self.min_samples_split = min_samples_split
         self.max_depth = max_depth
         self.n_features = n_features
         self.root = None
+        self.feature_importances_ = None
 
     def fit(self, X, y):
         X = np.array(X)  # Convert X to a NumPy array if it's not already
         y = np.array(y)  # Convert y to a NumPy array if it's not already
         self.n_features = X.shape[1] if self.n_features is None else min(X.shape[1], self.n_features)
+        self.feature_importances_ = np.zeros(X.shape[1])
         self.root = self._grow_tree(X, y)
 
     def _grow_tree(self, X, y, depth=0):
@@ -33,7 +37,11 @@ class DecisionTree:
         feat_idxs = np.random.choice(n_feats, self.n_features, replace=False)
 
         # Find the best split
-        best_feature, best_thresh = self._best_split(X, y, feat_idxs)
+        best_feature, best_thresh, best_reduction = self._best_split(X, y, feat_idxs)
+
+        if best_reduction > 0:
+            global_feat_idx = feat_idxs  # Correct indexing of the feature
+            self.feature_importances_[global_feat_idx] += best_reduction
 
         # Create child nodes
         left_idxs, right_idxs = self._split(X[:, best_feature], best_thresh)
@@ -59,17 +67,16 @@ class DecisionTree:
                     best_var_reduction = var_reduction
                     split_idx = feat_idx
                     split_threshold = thr
-        return split_idx, split_threshold
+        return split_idx, split_threshold, best_var_reduction
 
     def _variance_reduction(self, y, X_column, threshold):
         left_idxs, right_idxs = self._split(X_column, threshold)
         if len(left_idxs) == 0 or len(right_idxs) == 0:
             return 0
         parent_variance = np.var(y)
-        n = len(y)
-        n_l, n_r = len(left_idxs), len(right_idxs)
-        var_l, var_r = np.var(y[left_idxs]), np.var(y[right_idxs])
-        weighted_var = (n_l / n) * var_l + (n_r / n) * var_r
+        var_l = np.var(y[left_idxs])
+        var_r = np.var(y[right_idxs])
+        weighted_var = (len(left_idxs) / len(y)) * var_l + (len(right_idxs) / len(y)) * var_r
         return parent_variance - weighted_var
 
     def _split(self, X_column, split_thresh):
@@ -87,3 +94,8 @@ class DecisionTree:
         if x[node.feature] <= node.threshold:
             return self._traverse_tree(x, node.left)
         return self._traverse_tree(x, node.right)
+
+    def get_feature_importances(self):
+        # Normalize the feature importances to sum to 1 for easier interpretation
+        total = np.sum(self.feature_importances_)
+        return self.feature_importances_ / total if total > 0 else self.feature_importances_
